@@ -6,6 +6,5 @@ void Lift(int power)
 	//motor[RightBottom] =
 	//motor[RightInner] =
 	//motor[RightTop]
-
 	power;
 }
