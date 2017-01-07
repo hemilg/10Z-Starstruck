@@ -7,11 +7,13 @@ void claw (int pwr)
 {
 	motor[Claw] = pwr;
 }
+
 task DriveControl()
 {
 	int x = 0; //strafe
 	int y = 0; //forward+back
 	int r = 0; //rotate
+
 	while (1)
 	{
 		x = abs(vexRT[Ch4]) > 5 ? vexRT[Ch4] : 0;
@@ -26,6 +28,7 @@ task DriveControl()
 		wait1Msec(20);
 	}
 }
+
 task LiftControl()
 {
 	while (1)
@@ -69,11 +72,32 @@ void turn (int pwr, int deg)
 void dump ()
 {
 	stopTask(LiftControl);
+
+	// Pulse claw closed twice
+	for(int i = 0, i < 2, i++){
+		claw(127);
+		wait1Msec(150);
+		claw(0);
+		wait1Msec(100);
+	}
+	claw(50);
+
+	// Lift up dump
 	lift(127);
-	wait1Msec(1500);
+	wait1Msec(250);
+	// drive backwards
+	wait1Msec(750);
+	// stop drive
+	claw(-127);
+	wait1Msec(300);
 	lift(0);
-	claw(-1217);
-	wait1Msec(1000);
+	wait1Msec(500);
 	claw(0);
+
+	lift(-127);
+	wait1Msec(1000);
+	claw(127)
+	wait1Msec(250);
+
 	startTask(LiftControl);
 }
