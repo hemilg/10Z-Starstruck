@@ -1,3 +1,7 @@
+#pragma config(Sensor, in1,    gyro,           sensorGyro)
+#pragma config(Sensor, in2,    clawpot,        sensorPotentiometer)
+#pragma config(Sensor, dgtl1,  ELF,            sensorQuadEncoder)
+#pragma config(Sensor, dgtl3,  ERF,            sensorQuadEncoder)
 #pragma config(Motor,  port1,           Lift1,         tmotorVex393_HBridge, openLoop)
 #pragma config(Motor,  port2,           LF,            tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           LB,            tmotorVex393_MC29, openLoop)
@@ -34,9 +38,9 @@ task DriveControl()
 	int r = 0; //rotate
 	while (1)
 	{
-		x = vexRT[Ch4];
-		y = vexRT[Ch3];
-		r = vexRT[Ch1];
+		x = abs(vexRT[Ch4]) > 5 ? vexRT[Ch4] : 0;
+		y = abs(vexRT[Ch3]) > 5 ? vexRT[Ch3] : 0;
+		r = abs(vexRT[Ch1]) > 5 ? vexRT[Ch1] : 0;
 
 		motor[LF] = r + x + y;
 		motor[LB] = r - x + y;
@@ -50,40 +54,53 @@ task LiftControl()
 {
 	while (1)
 	{
-		if (vexRT[Btn5U])
-		{
-			lift(127);
-		}
-		else if (vexRT[Btn5D])
-		{
-			lift (-127);
-		}
-		else
-		{
-			lift(0);
-		}
-
-		if (vexRT[Btn6U])
-		{
-			claw(127);
-		}
-		else if (vexRT[Btn6D])
-		{
-			claw(-127);
-		}
-		else
-		{
-			claw(0);
-		}
+		lift(vexRT[Btn6U] ? 127 : (vexRT[Btn6D] ? -127 : 0));
+		claw(vexRT[Btn5U] ? -127 : (vexRT[Btn5D] ? 127 : 0));
 	}
 }
 
-void driveY (int pwr);
+void driveX (int pwr, int clicks)
+{
+	pwr = (clicks > 0 ? pwr : (-pwr));
+	SensorValue[ELF] = 0;
+	while (clicks  > abs(SensorValue[ELF])
+	{
+		motor[LF] = motor[RF] = pwr;
+		motor[RB] = motor[LB] = -pwr;
+	}
+}
 
-void driveX (int pwr);
+void driveY (int pwr, int clicks)
+{
+	pwr = (clicks > 0 ? pwr : (-pwr));
+	SensorValue[ELF] = 0;
+	while (clicks  > abs(SensorValue[ELF])
+	{
+		motor[LF] = motor[LB] = pwr;
+		motor[RF] = motor[RB] = -pwr;
+	}
+}
 
-void turn (int pwr);
+void turn (int pwr, int deg)
+{
+	pwr = (deg > 0 ? pwr : (-pwr));
+	while (deg < abs(SensorValue[gyro]))
+	{
+		motor[LB] = motor[RB] = motor[RF] = motor[LF] = pwr;
+	}
+}
 
+void dump ()
+{
+	stopTask(LiftControl);
+	lift(127);
+	wait1Msec(1500);
+	lift(0);
+	claw(-1217);
+	wait1Msec(1000);
+	claw(0);
+	startTask(LiftControl);
+}
 void pre_auton()
 {
 
