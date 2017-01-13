@@ -34,10 +34,31 @@ task LiftControl()
 	while (1)
 	{
 		lift(vexRT[Btn6U] ? 127 : (vexRT[Btn6D] ? -127 : 0));
-		claw(vexRT[Btn5U] ? -127 : (vexRT[Btn5D] ? 127 : 0));
+		if (vexRT[Btn6U] && vexRT[Btn5D]) claw(50);
+		else claw(vexRT[Btn5U] ? -127 : (vexRT[Btn5D] ? 127 : 0));
+		wait1Msec(20);
 	}
 }
 
+void setDrive (int pwr)
+{
+	motor[LF] = motor[RF] = motor[LB] = motor[RB] = 0;
+}
+void driveXTime (int pwr, int time)
+{
+		motor[LF] = motor[RF] = pwr;
+		motor[RB] = motor[LB] = -pwr;
+		wait1Msec(time);
+		setDrive(0);
+}
+
+void driveYTime (int pwr, int time)
+{
+		motor[LF] = motor[LB] = pwr;
+		motor[RF] = motor[RB] = -pwr;
+		wait1Msec(time);
+		setDrive(0);
+}
 void driveX (int pwr, int clicks)
 {
 	pwr = (clicks > 0 ? pwr : (-pwr));
@@ -46,7 +67,10 @@ void driveX (int pwr, int clicks)
 	{
 		motor[LF] = motor[RF] = pwr;
 		motor[RB] = motor[LB] = -pwr;
+		wait1Msec(20);
 	}
+	setDrive(0);
+
 }
 
 void driveY (int pwr, int clicks)
@@ -57,7 +81,9 @@ void driveY (int pwr, int clicks)
 	{
 		motor[LF] = motor[LB] = pwr;
 		motor[RF] = motor[RB] = -pwr;
+		wait1Msec(20);
 	}
+	setDrive(0);
 }
 
 void turn (int pwr, int deg)
@@ -66,7 +92,9 @@ void turn (int pwr, int deg)
 	while (deg < abs(SensorValue[gyro]))
 	{
 		motor[LB] = motor[RB] = motor[RF] = motor[LF] = pwr;
+		wait1Msec(20);
 	}
+	setDrive(0);
 }
 
 void dump ()
@@ -74,7 +102,7 @@ void dump ()
 	stopTask(LiftControl);
 
 	// Pulse claw closed twice
-	for(int i = 0, i < 2, i++){
+	for(int i = 0; i < 2; i++){
 		claw(127);
 		wait1Msec(150);
 		claw(0);
@@ -99,5 +127,72 @@ void dump ()
 	claw(127)
 	wait1Msec(250);
 
+	startTask(LiftControl);
+}
+
+void dumping ()
+{
+	stopTask(LiftControl);
+	clearTimer(T1);
+	while (SensorValue[limit] == 1 && time1[T1] < 1200)
+	{
+		Lift(127);
+		claw(50);
+		wait1Msec(20);
+	}
+	claw(-127);
+	wait1Msec(200);
+	Lift(0);
+	wait1Msec(750);
+	claw(0);
+	clearTimer(T1);
+	while (SensorValue[bottom] == 1 && time1[T1] < 1200)
+	{
+		Lift(-100);
+		wait1Msec(20);
+	}
+	Lift(0);
+	claw(127);
+	wait1Msec(150);
+	claw(0);
+	startTask(LiftControl);
+}
+void startLift ()
+{
+	lift(127);
+	wait1Msec(250);
+	lift(0);
+	wait1Msec(250);
+	lift(-127);
+	wait1Msec(250);
+	lift(0);
+}
+void auto1 () // pick up three in middle
+{
+	stopAllTasks();
+	claw(127);
+	wait1Msec(500);
+	claw(0);
+	driveYTime(80, 500);
+	claw(80);
+	driveYTime(80, 1000);
+	claw(0);
+	startTask(DriveControl);
+	startTask(LiftControl);
+}
+
+void auto2 () // knock four in middle
+{
+	stopAllTasks();
+	claw(127);
+	wait1Msec(500);
+	claw(0);
+	driveYTime(80, 800);
+	driveXTime(80, 500);
+	lift(127);
+	wait1Msec(600);
+	lift(0);
+	driveYTime(80, 200);
+	startTask(DriveControl);
 	startTask(LiftControl);
 }
