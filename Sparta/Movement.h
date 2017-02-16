@@ -38,3 +38,33 @@ task DriveControl()
 		wait1Msec(20);
 	}
 }
+
+task LiftControl()
+{
+	while (1)
+	{
+		if (vexRT[Btn5U]) lift(127);
+		else if (vexrt[Btn5D]) lift(-127);
+		else lift(0);
+
+		wait1Msec(20);
+	}
+}
+
+task IntakeControl()
+{
+		if (vexRT[Btn6U])
+		{
+			while (vexRT[Btn6U]) wait1Msec(20);
+			SensorValue[Claw1] = 1;
+			SensorValue[Claw2] = 1;
+		}
+		else if (vexRT[Btn6D])
+		{
+			while (vexRT[Btn6D]) wait1Msec(20);
+			SensorValue[Claw1] = 0;
+			SensorValue[Claw2] = 0;
+		}
+
+		wait1Msec(20);
+}
