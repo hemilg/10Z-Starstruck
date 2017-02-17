@@ -56,13 +56,14 @@ task pidL()
 	{
 		error = target - SensorValue[LeftEnc];
 		integral += error;
-		p = (abs(error) > 1000 ? (127 * sgn(error)) : (kp * error));
+		p = (abs(error) > 400 ? (127 * sgn(error)) : (kp * error));
 		i = ki * integral;
 		d = kd * (error - prevError);
 		pwr = p + i + d;
 		pwr = (pwr > 0) ? min(pwr, 127) : max(pwr, -127);
 		pwr = linSpeed(pwr);
 		leftDrive(abs(pwr) > minPwr ? pwr : sgn(pwr) * minPwr);
+		rightDrive(abs(pwr) > minPwr ? pwr : sgn(pwr) * minPwr);
 	}
 	leftDrive(0);
 	stopTask(pidL);
@@ -80,7 +81,7 @@ task pidR ()
 	{
 		error = target - SensorValue[RightEnc];
 		integral += error;
-		p = (abs(error) > 1000 ? (127 * sgn(error)) : (kp * error));
+		p = (abs(error) > 400 ? (127 * sgn(error)) : (kp * error));
 		i = ki * integral;
 		d = kd * (error - prevError);
 		pwr = p + i + d;
@@ -122,7 +123,7 @@ void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI)
 	SensorValue[RightEnc] = 0;
 	SensorValue[LeftEnc] = 0;
 	startTask(pidL);
-	startTask(pidR);
+	//startTask(pidR);
 }
 void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI, int timeMax)
 {
@@ -143,12 +144,13 @@ void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI, int timeM
 void turn (int deg, int pwr)
 {
 	SensorValue[gyro] = 0;
-	float kp = 0.1;
-	int minPow = 20;
+	float kp = 0.15;
+	int minPow = 35;
 	while (abs(SensorValue[gyro]) < deg)
 	{
 		int error = deg - SensorValue[gyro];
 		int pow = (abs(error) > 900) ? 127 * sgn(error) : kp * error;
+		pow = (pow > 0) ? min(pow, 127) : max(pow, -127);
 		pow = (abs(pow) > minPow ? pow : sgn(pow) * minPow);
 		leftDrive(linSpeed(pow);
 		rightDrive(-linSpeed(pow));

@@ -1,11 +1,12 @@
-#pragma config(Sensor, in1,    gyro,           sensorGyro)
-#pragma config(Sensor, in2,    clawpot,        sensorPotentiometer)
-#pragma config(Sensor, dgtl1,  Claw1,          sensorDigitalOut)
-#pragma config(Sensor, dgtl2,  Claw2,          sensorDigitalOut)
-#pragma config(Sensor, dgtl3,  ,               sensorDigitalOut)
-#pragma config(Sensor, dgtl4,  ,               sensorDigitalOut)
-#pragma config(Sensor, dgtl9,  RightEnc,       sensorQuadEncoder)
-#pragma config(Sensor, dgtl11, LeftEnc,        sensorQuadEncoder)
+#pragma config(Sensor, in1,    pot,            sensorPotentiometer)
+#pragma config(Sensor, in2,    ,               sensorGyro)
+#pragma config(Sensor, in7,    gyro,           sensorNone)
+#pragma config(Sensor, dgtl1,  ,               sensorDigitalOut)
+#pragma config(Sensor, dgtl2,  ,               sensorDigitalOut)
+#pragma config(Sensor, dgtl3,  Claw1,          sensorDigitalOut)
+#pragma config(Sensor, dgtl4,  Claw2,          sensorDigitalOut)
+#pragma config(Sensor, dgtl8,  LeftEnc,        sensorQuadEncoder)
+#pragma config(Sensor, dgtl11, RightEnc,       sensorQuadEncoder)
 #pragma config(Motor,  port1,           BRD,           tmotorVex393_HBridge, openLoop, reversed)
 #pragma config(Motor,  port2,           MRD,           tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           ORL,           tmotorVex393HighSpeed_MC29, openLoop)
@@ -41,15 +42,26 @@ task autonomous()
 
 task usercontrol()
 {
+	gyroCalibrate();
+	SensorValue[pot] = 0;
 	startTask(DriveControl);
 	startTask(LiftControl);
 	startTask(IntakeControl);
+	//drive(1000, 40, 0.1, 0, 0); // works well
+	//turn(900, 127);  // works well
 
 	while (1)
 	{
-		/*if (vexRT[Btn8U]) dumping();
-		if (vexRT[Btn8D] && vexRT[Btn7D]) auto1();
-		if (vexRT[Btn8L] && vexRT[Btn7L]) auto2();*/
-		wait1Msec(20);
+		if (vexRT[Btn8U])
+		{
+			while (vexRT[Btn8U]) wait1Msec(20);
+			if (dumpMode == 1) startTask(hold);
+			else
+			{
+				stopTask(hold);
+				dumping();
+			}
+		}
+	wait1Msec(20);
 	}
 }
