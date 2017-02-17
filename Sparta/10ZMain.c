@@ -1,11 +1,9 @@
-#pragma config(Sensor, in1,    pot,            sensorPotentiometer)
-#pragma config(Sensor, in2,    ,               sensorGyro)
-#pragma config(Sensor, in7,    gyro,           sensorNone)
-#pragma config(Sensor, dgtl1,  ,               sensorDigitalOut)
-#pragma config(Sensor, dgtl2,  ,               sensorDigitalOut)
-#pragma config(Sensor, dgtl3,  Claw1,          sensorDigitalOut)
-#pragma config(Sensor, dgtl4,  Claw2,          sensorDigitalOut)
-#pragma config(Sensor, dgtl8,  LeftEnc,        sensorQuadEncoder)
+#pragma config(Sensor, in1,    pot,        sensorPotentiometer)
+#pragma config(Sensor, in8,    gyro,           sensorGyro)
+#pragma config(Sensor, dgtl1,  blinker,        sensorDigitalOut)
+#pragma config(Sensor, dgtl4,  Claw1,          sensorDigitalOut)
+#pragma config(Sensor, dgtl5,  Claw2,          sensorDigitalOut)
+#pragma config(Sensor, dgtl9,  LeftEnc,        sensorQuadEncoder)
 #pragma config(Sensor, dgtl11, RightEnc,       sensorQuadEncoder)
 #pragma config(Motor,  port1,           BRD,           tmotorVex393_HBridge, openLoop, reversed)
 #pragma config(Motor,  port2,           MRD,           tmotorVex393_MC29, openLoop)
@@ -32,7 +30,13 @@
 
 void pre_auton()
 {
-
+	SensorValue[blinker] = 0;
+	SensorValue[Claw1] = 0;
+	SensorValue[Claw2] = 0;
+	SensorValue[LeftEnc] = 0;
+	SensorValue[RightEnc] = 0;
+	gyroCalibrate();
+	SensorValue[blinker] = 1;
 }
 
 task autonomous()
@@ -42,8 +46,7 @@ task autonomous()
 
 task usercontrol()
 {
-	gyroCalibrate();
-	SensorValue[pot] = 0;
+	pre_auton();
 	startTask(DriveControl);
 	startTask(LiftControl);
 	startTask(IntakeControl);
