@@ -1,5 +1,3 @@
-#include <Movement.h>
-
 int target;
 float kp, ki, kd;
 int minPwr;
@@ -12,15 +10,6 @@ int min (int a, int b)
 int max (int a, int b)
 {
 	return (a > b) ? a : b;
-}
-
-void gyroCalibrate()
-{
-    SensorType[gyro] = sensorNone;
-    wait1Msec(1000);
-    SensorType[gyro] = sensorGyro;
-    wait1Msec(2000);
-    SensorValue[gyro] = 0;
 }
 
 int linSpeed (int pwr)
