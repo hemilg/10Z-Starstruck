@@ -1,9 +1,11 @@
 float driveMult = 1.0;
 int dumpMode = 1;
 
-int bottomHeight = 900;
-int holdHeight = 1000;
-int topHeight = 1500;
+int potZero = 0;
+int bottomHeight = 850; // 850
+int holdHeight = 950; // 950
+int topHeight = 2900; // 3100, 3300
+int hangHeight = 920;  // 920
 
 const unsigned int linearSpeed[128] =
 {
@@ -82,23 +84,23 @@ task LiftControl()
 	int prev = 100;
 	while (1)
 	{
-		if (vexRT[Btn5U])
+		if (vexRT[Btn5U] && SensorValue[pot] < (topHeight + 300))
 		{
-			lift(127);
+			lift((int)(127 * driveMult));
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
 		else if (vexRT[Btn5D])
 		{
-			lift(-127);
+			lift((int)(-127 * driveMult));
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
-		else
-		{
+		else lift(0);
+		/*{
 			if (prev > holdHeight)	lift(15);
 			else lift(0);
-		}
+		}*/
 		wait1Msec(20);
 	}
 }
@@ -144,17 +146,38 @@ task hold()
 void dumping()
 {
 	stopTask(LiftControl);
+	stopTask(hold);
 	while (SensorValue[pot] < topHeight)
 	{
-		lift(127);
+		lift(80); // 60
 		wait1Msec(20);
 	}
 	claw();
+	wait1Msec(200);
 	while (SensorValue[pot] > bottomHeight)
 	{
-		lift(-127);
+		lift(-60);
 		wait1Msec(20);
 	}
 	dumpMode = 1;
+	startTask(LiftControl);
+}
+
+void hanging()
+{
+	stopTask(LiftControl);
+	stopTask(DriveControl);
+	while (SensorValue[pot] > hangHeight)
+	{
+		leftDrive(127);
+		rightDrive(127);
+		lift(-127);
+		wait1Msec(20);
+	}
+	leftDrive(0);
+	rightDrive(0);
+	lift(0);
+	SensorValue[HangLock] = abs(SensorValue[HangLock] - 1);
+	startTask(DriveControl);
 	startTask(LiftControl);
 }

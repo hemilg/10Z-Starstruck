@@ -24,9 +24,9 @@ task pidL()
 	float kp2;
 	int pwr;
 
-	while (abs(SensorValue[LeftEnc]) < abs(target))
+	while (abs(SensorValue[RightEnc]) < abs(target))
 	{
-		error = target - SensorValue[LeftEnc];
+		error = target - SensorValue[RightEnc];
 		integral += error;
 		p = (abs(error) > 400 ? (127 * sgn(error)) : (kp * error));
 		i = ki * integral;
@@ -68,7 +68,7 @@ task pidR ()
 void drive (int target, int pwr)
 {
 	SensorValue[RightEnc] = 0;
-	while (abs(SensorValue[RightEnc]) < target)
+	while (abs(SensorValue[RightEnc]) < abs(target))
 	{
 		rightDrive(pwr * sgn(target));
 		leftDrive(pwr * sgn(target));
@@ -113,12 +113,12 @@ void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI, int timeM
 	stopTask(pidL);
 	stopTask(pidR);
 }
-void turn (int deg, int pwr)
+void turn (int deg, int pwr, int mpwr)
 {
 	SensorValue[gyro] = 0;
 	float kp = 0.15;
-	int minPow = 35;
-	while (abs(SensorValue[gyro]) < deg)
+	int minPow = mpwr; // 35
+	while (abs(SensorValue[gyro]) < abs(deg))
 	{
 		int error = deg - SensorValue[gyro];
 		int pow = (abs(error) > 900) ? 127 * sgn(error) : kp * error;

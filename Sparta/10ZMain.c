@@ -1,6 +1,7 @@
-#pragma config(Sensor, in1,    pot,        sensorPotentiometer)
+#pragma config(Sensor, in1,    pot,            sensorPotentiometer)
 #pragma config(Sensor, in8,    gyro,           sensorGyro)
 #pragma config(Sensor, dgtl1,  blinker,        sensorDigitalOut)
+#pragma config(Sensor, dgtl3,  HangLock,       sensorDigitalOut)
 #pragma config(Sensor, dgtl4,  Claw1,          sensorDigitalOut)
 #pragma config(Sensor, dgtl5,  Claw2,          sensorDigitalOut)
 #pragma config(Sensor, dgtl9,  LeftEnc,        sensorQuadEncoder)
@@ -31,28 +32,82 @@
 void pre_auton()
 {
 	SensorValue[blinker] = 0;
-	SensorValue[Claw1] = 0;
+	SensorValue[Claw1] = 0; // in
 	SensorValue[Claw2] = 0;
+	SensorValue[HangLock] = 0; // unlocked
 	SensorValue[LeftEnc] = 0;
 	SensorValue[RightEnc] = 0;
 	gyroCalibrate();
 	SensorValue[blinker] = 1;
+	SensorValue[pot] = 0;
+
 }
 
+void auto1()
+{
+	clearTimer(T1);
+	while (SensorValue[pot] < 1200)
+	{
+		Lift(127);
+		if (time1[T1] % 200 == 0)
+			claw();
+	}
+	SensorValue[Claw1] = SensorValue[Claw2] = 0;
+	while (SensorValue[pot] > bottomHeight)
+	{
+		Lift(-80);
+		wait1Msec(20);
+	}
+	Lift(0);
+	wait1Msec(500);
+	SensorValue[Claw1] = 1;
+	SensorValue[Claw2] = 1;
+	wait1Msec(500);
+	drive(1400, 60, 0.1, 0, 0);
+	while(SensorValue[RightEnc] < 1100) wait1Msec(20);
+	claw();
+	startTask(hold);
+	wait1Msec(500);
+	stopTask(pidL);
+	turn(-1100, 127, 80);
+	wait1Msec(500);
+	drive(-1000, 127);
+	wait1Msec(200);
+	dumping();
+	wait1Msec(1000);
+	drive(1200, 50, 0.1, 0, 0);
+	while (SensorValue[RightEnc] < 1150) wait1Msec(20);
+	claw();
+	wait1Msec(300);
+	drive(-1300, 127);
+	startTask(hold);
+	dumping();
+
+}
+
+void auto2()
+{
+	drive(-200, 127);
+	startTask(hold);
+	wait1Msec(500);
+	drive(-1200, 127);
+	dumping();
+
+}
 task autonomous()
 {
-
+	auto1();
 }
 
 task usercontrol()
 {
-	pre_auton();
+	stopTask(hold);
+	dumpMode = 1;
 	startTask(DriveControl);
 	startTask(LiftControl);
 	startTask(IntakeControl);
 	//drive(1000, 40, 0.1, 0, 0); // works well
 	//turn(900, 127);  // works well
-
 	while (1)
 	{
 		if (vexRT[Btn8U])
@@ -61,10 +116,25 @@ task usercontrol()
 			if (dumpMode == 1) startTask(hold);
 			else
 			{
-				stopTask(hold);
+				//stopTask(hold);
 				dumping();
 			}
 		}
-	wait1Msec(20);
+		if (vexRT[Btn8D])
+		{
+			while (vexRT[Btn8D]) wait1Msec(20);
+			hanging();
+		}
+		if (vexRT[Btn8L])
+		{
+			while (vexRT[Btn8L]) wait1Msec(20);
+			SensorValue[HangLock] = abs(SensorValue[HangLock] - 1);
+		}
+		wait1Msec(20);
+		if (vexRT[Btn8R] && vexRT[Btn7R])
+		{
+			pre_auton();
+			auto1();
+		}
 	}
 }
