@@ -70,7 +70,14 @@ void collectCenterAuto()
 	startTask(hold);
 	wait1Msec(500);
 	stopTask(pidL);
-	turn(-1100, 127, 80);
+	if(direction == 1)
+	{
+		turn(-1100, 127, 80);
+	}
+	else
+	{
+		turn(1100, 127, 80);
+	}
 	wait1Msec(500);
 	drive(-1000, 127);
 	wait1Msec(200);
@@ -86,7 +93,7 @@ void collectCenterAuto()
 
 }
 
-void auto2()
+void knockStarsAuto()
 {
 	drive(-200, 127);
 	startTask(hold);
@@ -97,7 +104,16 @@ void auto2()
 }
 task autonomous()
 {
-	collectCenterAuto();
+	switch(autonVal){
+		case 1:
+			collectCenterAuto();
+			break;
+		case 2:
+			knockStarsAuto();
+			break;
+		default:
+			break;
+	}
 }
 
 task usercontrol()
