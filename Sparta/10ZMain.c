@@ -28,9 +28,11 @@
 #include "Vex_Competition_Includes.c"
 #include <Movement.h>
 #include <Auton.h>
+#include <LCD.h>
 
 void pre_auton()
 {
+	startTask(selectAuton);
 	fillSlew(0);
 	SensorValue[blinker] = 0;
 	SensorValue[Claw1] = 0; // in
@@ -40,7 +42,6 @@ void pre_auton()
 	gyroCalibrate();
 	SensorValue[blinker] = 1;
 	SensorValue[pot] = 0;
-
 }
 
 void collectCenterAuto()
