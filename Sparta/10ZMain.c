@@ -43,22 +43,22 @@ void pre_auton()
 
 }
 
-void centerCollectAuto()
+void auto1()
 {
 	clearTimer(T1);
 	while (SensorValue[pot] < 1200)
 	{
-		lift(127);
+		Lift(127);
 		if (time1[T1] % 200 == 0)
 			claw();
 	}
 	SensorValue[Claw1] = SensorValue[Claw2] = 0;
 	while (SensorValue[pot] > bottomHeight)
 	{
-		lift(-80);
+		Lift(-80);
 		wait1Msec(20);
 	}
-	lift(0);
+	Lift(0);
 	wait1Msec(500);
 	SensorValue[Claw1] = 1;
 	SensorValue[Claw2] = 1;
@@ -96,7 +96,7 @@ void auto2()
 }
 task autonomous()
 {
-	centerCollectAuto();
+	auto1();
 }
 
 task usercontrol()
@@ -110,9 +110,9 @@ task usercontrol()
 	//turn(900, 127);  // works well
 	while (1)
 	{
-		if (vexRT[Btn8U])
+		if (vexRT[Btn6U])
 		{
-			while (vexRT[Btn8U]) wait1Msec(20);
+			while (vexRT[Btn6U]) wait1Msec(20);
 			if (dumpMode == 1) startTask(hold);
 			else
 			{
@@ -134,7 +134,7 @@ task usercontrol()
 		if (vexRT[Btn8R] && vexRT[Btn7R])
 		{
 			pre_auton();
-			centerCollectAuto();
+			auto1();
 		}
 	}
 }

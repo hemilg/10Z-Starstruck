@@ -3,8 +3,8 @@ int dumpMode = 1;
 
 int potZero = 0;
 int bottomHeight = 850; // 850
-int holdHeight = 1400; // 950 --> increased to 1400 by Saransh 2/21
-int topHeight = 2900; // 3100, 3300
+int holdHeight = 1100; // 950
+int topHeight = 2000; // 2900, 3100, 3300
 int hangHeight = 920;  // 920
 
 const unsigned int linearSpeed[128] =
@@ -96,7 +96,7 @@ task LiftControl()
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
-		else lift(0);
+		else lift(-15);    // used to be 0
 		/*{
 			if (prev > holdHeight)	lift(15);
 			else lift(0);
@@ -109,20 +109,12 @@ task IntakeControl()
 {
 	while (1)
 	{
-	if (vexRT[Btn6U])
-			{
-				while (vexRT[Btn6U]) wait1Msec(20);
-				SensorValue[Claw1] = 1;
-				SensorValue[Claw2] = 1;
-			}
-			else if (vexRT[Btn6D])
+	if (vexRT[Btn6D])
 			{
 				while (vexRT[Btn6D]) wait1Msec(20);
-				SensorValue[Claw1] = 0;
-				SensorValue[Claw2] = 0;
+				SensorValue[Claw1] = SensorValue[Claw2] = abs(SensorValue[Claw1] - 1);
 			}
-
-			wait1Msec(20);
+			//wait1Msec(20);
 		}
 }
 
@@ -149,7 +141,7 @@ void dumping()
 	stopTask(hold);
 	while (SensorValue[pot] < topHeight)
 	{
-		lift(80); // 60
+		lift(127); // 80, 60
 		wait1Msec(20);
 	}
 	claw();
