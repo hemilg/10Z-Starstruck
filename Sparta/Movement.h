@@ -3,7 +3,7 @@ int dumpMode = 1;
 
 int potZero = 0;
 int bottomHeight = 850; // 850
-int holdHeight = 950; // 950
+int holdHeight = 1400; // 950 --> increased to 1400 by Saransh 2/21
 int topHeight = 2900; // 3100, 3300
 int hangHeight = 920;  // 920
 
