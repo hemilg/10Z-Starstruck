@@ -67,7 +67,7 @@ task pidR ()
 
 void drive (int target, int pwr)
 {
-	SensorValue[RightEnc] = 0;
+	resetEncoders();
 	while (abs(SensorValue[RightEnc]) < abs(target))
 	{
 		rightDrive(pwr * sgn(target));
@@ -92,10 +92,9 @@ void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI)
 	kp = kpI;
 	ki = kiI;
 	kd = kdI;
-	SensorValue[RightEnc] = 0;
-	SensorValue[LeftEnc] = 0;
+	resetEncoders();
 	startTask(pidL);
-	//startTask(pidR);
+	startTask(pidR);
 }
 void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI, int timeMax)
 {
@@ -104,8 +103,7 @@ void drive (int targetI, int minPwrI, float kpI, float kiI, float kdI, int timeM
 	kp = kpI;
 	ki = kiI;
 	kd = kdI;
-	SensorValue[RightEnc] = 0;
-	SensorValue[LeftEnc] = 0;
+	resetEncoders();
 	startTask(pidL);
 	startTask(pidR);
 	clearTimer(T1);

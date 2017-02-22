@@ -24,6 +24,24 @@ const unsigned int linearSpeed[128] =
  88, 89, 89, 90, 90,127,127,127
 };
 
+const int SLEW_LENGTH = 10;
+
+int Slew[SLEW_LENGTH];
+
+void fillSlew(int val)
+{
+	for(int j = 0; j < SLEW_LENGTH; j++)
+	{
+		Slew[j] = val;
+	}
+}
+
+void resetEncoders()
+{
+	SensorValue[LeftEnc] = 0;
+	SensorValue[RightEnc] = 0;
+}
+
 void gyroCalibrate()
 {
     SensorType[gyro] = sensorNone;
@@ -36,6 +54,21 @@ void gyroCalibrate()
 void lift (int pwr)
 {
 	motor[ORL] = motor[TRL] = motor[BRL] = motor[OLL] = motor[TLL] = motor[BLL] = pwr;
+}
+
+void slewLift(int pwr)
+{
+	int sum;
+	for(int j = 1; j < SLEW_LENGTH; j++)
+	{
+		Slew[j-1] = Slew[j];
+	}
+	Slew[SLEW_LENGTH-1] = pwr;
+	for(int j = 0; j < SLEW_LENGTH; j++)
+	{
+		sum += Slew[j];
+	}
+	lift(sum/SLEW_LENGTH);
 }
 
 void setDrive (int pwr)

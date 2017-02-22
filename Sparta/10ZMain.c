@@ -31,34 +31,34 @@
 
 void pre_auton()
 {
+	fillSlew(0);
 	SensorValue[blinker] = 0;
 	SensorValue[Claw1] = 0; // in
 	SensorValue[Claw2] = 0;
 	SensorValue[HangLock] = 0; // unlocked
-	SensorValue[LeftEnc] = 0;
-	SensorValue[RightEnc] = 0;
+	resetEncoders();
 	gyroCalibrate();
 	SensorValue[blinker] = 1;
 	SensorValue[pot] = 0;
 
 }
 
-void auto1()
+void collectCenterAuto()
 {
 	clearTimer(T1);
 	while (SensorValue[pot] < 1200)
 	{
-		Lift(127);
+		lift(127);
 		if (time1[T1] % 200 == 0)
 			claw();
 	}
 	SensorValue[Claw1] = SensorValue[Claw2] = 0;
 	while (SensorValue[pot] > bottomHeight)
 	{
-		Lift(-80);
+		lift(-80);
 		wait1Msec(20);
 	}
-	Lift(0);
+	lift(0);
 	wait1Msec(500);
 	SensorValue[Claw1] = 1;
 	SensorValue[Claw2] = 1;
@@ -96,7 +96,7 @@ void auto2()
 }
 task autonomous()
 {
-	auto1();
+	collectCenterAuto();
 }
 
 task usercontrol()
@@ -134,7 +134,7 @@ task usercontrol()
 		if (vexRT[Btn8R] && vexRT[Btn7R])
 		{
 			pre_auton();
-			auto1();
+			collectCenterAuto();
 		}
 	}
 }
