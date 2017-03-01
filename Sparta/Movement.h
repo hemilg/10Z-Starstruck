@@ -1,11 +1,11 @@
 float driveMult = 1.0;
 int dumpMode = 1;
 
-int potZero = 0;
-int bottomHeight = 850; // 850
+int bottomHeight = 980; // 850
 int holdHeight = 1100; // 950
-int topHeight = 2000; // 2900, 3100, 3300
-int hangHeight = 920;  // 920
+int clawHeight = 2300; // 2900, 3100, 3300
+int topHeight = 3300;
+int hangHeight = 1000;  // 920
 
 const unsigned int linearSpeed[128] =
 {
@@ -27,6 +27,16 @@ const unsigned int linearSpeed[128] =
 const int SLEW_LENGTH = 10;
 
 int Slew[SLEW_LENGTH];
+
+void potValues(int zero)
+{
+	int offset = zero - (bottomHeight - 10);
+	bottomHeight += offset;
+	holdHeight += offset;
+	clawHeight += offset;
+	topHeight += offset;
+	hangHeight += offset;
+}
 
 void fillSlew(int val)
 {
@@ -94,15 +104,16 @@ void claw ()
 
 int cubicMap (int pwr)
 {
-	return linearSpeed[abs(pwr)] * sgn(pwr);
+	return pwr;
+	//return linearSpeed[abs(pwr)] * sgn(pwr);
 }
 
 task DriveControl()
 {
 	while (1)
 	{
-		leftDrive((abs(vexRT[Ch3]) > 5) ? cubicMap((int)(vexRT[Ch3] * driveMult)) : 0);
-		rightDrive((abs(vexRT[Ch2]) > 5) ? cubicMap((int)(vexRT[Ch2] * driveMult)) : 0);
+		leftDrive((abs(vexRT[Ch3]) > 15) ? cubicMap((int)(vexRT[Ch3] * driveMult)) : 0);
+		rightDrive((abs(vexRT[Ch2]) > 15) ? cubicMap((int)(vexRT[Ch2] * driveMult)) : 0);
 		if (vexRT[Btn7U])
 		{
 			while (vexRT[Btn7U]) wait1Msec(20);
@@ -129,7 +140,7 @@ task LiftControl()
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
-		else lift(-15);    // used to be 0
+		else lift(0);    // used to be 0
 		/*{
 			if (prev > holdHeight)	lift(15);
 			else lift(0);
@@ -172,16 +183,23 @@ void dumping()
 {
 	stopTask(LiftControl);
 	stopTask(hold);
-	while (SensorValue[pot] < topHeight)
+	while (SensorValue[pot] < clawHeight)
 	{
 		lift(127); // 80, 60
 		wait1Msec(20);
 	}
 	claw();
-	wait1Msec(200);
+	while(SensorValue[pot] < topHeight) wait1Msec(20);
+	lift(0);
+	wait1Msec(400);
+	while (SensorValue[pot] > holdHeight)
+	{
+		lift(-127);
+		wait1Msec(20);
+	}
 	while (SensorValue[pot] > bottomHeight)
 	{
-		lift(-60);
+		lift(-30);
 		wait1Msec(20);
 	}
 	dumpMode = 1;

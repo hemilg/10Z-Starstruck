@@ -1,5 +1,5 @@
 #pragma config(Sensor, in1,    pot,            sensorPotentiometer)
-#pragma config(Sensor, in8,    gyro,           sensorGyro)
+#pragma config(Sensor, in2,    gyro,           sensorGyro)
 #pragma config(Sensor, dgtl1,  blinker,        sensorDigitalOut)
 #pragma config(Sensor, dgtl3,  HangLock,       sensorDigitalOut)
 #pragma config(Sensor, dgtl4,  Claw1,          sensorDigitalOut)
@@ -40,8 +40,8 @@ void pre_auton()
 	SensorValue[HangLock] = 0; // unlocked
 	resetEncoders();
 	gyroCalibrate();
+	potValues(SensorValue[pot]);
 	SensorValue[blinker] = 1;
-	SensorValue[pot] = 0;
 }
 
 void collectCenterAuto()
