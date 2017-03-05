@@ -3,7 +3,7 @@ int dumpMode = 1;
 
 int bottomHeight = 980; // 850
 int holdHeight = 1100; // 950
-int clawHeight = 2300; // 2900, 3100, 3300
+int clawHeight = 2500; // 2000
 int topHeight = 3300;
 int hangHeight = 1000;  // 920
 
@@ -140,11 +140,10 @@ task LiftControl()
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
-		else lift(0);    // used to be 0
-		/*{
-			if (prev > holdHeight)	lift(15);
-			else lift(0);
-		}*/
+		else //lift(0);    // used to be 0
+		{
+			lift(-10);
+		}
 		wait1Msec(20);
 	}
 }
@@ -173,7 +172,7 @@ task hold()
 			lift(127);
 			wait1Msec(20);
 		}
-		lift(15);
+		lift(8);
 		wait1Msec(20);
 	}
 	startTask(LiftControl);
@@ -191,7 +190,7 @@ void dumping()
 	claw();
 	while(SensorValue[pot] < topHeight) wait1Msec(20);
 	lift(0);
-	wait1Msec(400);
+	wait1Msec(600);
 	while (SensorValue[pot] > holdHeight)
 	{
 		lift(-127);
