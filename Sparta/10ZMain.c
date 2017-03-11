@@ -1,11 +1,12 @@
 #pragma config(Sensor, in1,    pot,            sensorPotentiometer)
 #pragma config(Sensor, in2,    gyro,           sensorGyro)
-#pragma config(Sensor, dgtl1,  blinker,        sensorDigitalOut)
-#pragma config(Sensor, dgtl3,  HangLock,       sensorDigitalOut)
-#pragma config(Sensor, dgtl4,  Claw1,          sensorDigitalOut)
-#pragma config(Sensor, dgtl5,  Claw2,          sensorDigitalOut)
+#pragma config(Sensor, dgtl1,  BackSonar,      sensorSONAR_cm)
+#pragma config(Sensor, dgtl3,  RightEnc,       sensorQuadEncoder)
+#pragma config(Sensor, dgtl6,  Claw1,          sensorDigitalOut)
+#pragma config(Sensor, dgtl7,  Claw2,          sensorDigitalOut)
+#pragma config(Sensor, dgtl8,  HangLock,       sensorDigitalOut)
 #pragma config(Sensor, dgtl9,  LeftEnc,        sensorQuadEncoder)
-#pragma config(Sensor, dgtl11, RightEnc,       sensorQuadEncoder)
+#pragma config(Sensor, dgtl11, SideSonar,      sensorSONAR_cm)
 #pragma config(Motor,  port1,           BRD,           tmotorVex393_HBridge, openLoop)
 #pragma config(Motor,  port2,           MRD,           tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port3,           ORL,           tmotorVex393HighSpeed_MC29, openLoop)
@@ -34,14 +35,197 @@ void pre_auton()
 {
 	startTask(selectAuton);
 	fillSlew(0);
-	SensorValue[blinker] = 0;
+	//SensorValue[blinker] = 0;
 	SensorValue[Claw1] = 0; // in
 	SensorValue[Claw2] = 0;
 	SensorValue[HangLock] = 0; // unlocked
 	resetEncoders();
 	gyroCalibrate();
 	potValues(SensorValue[pot]);
-	SensorValue[blinker] = 1;
+	//SensorValue[blinker] = 1;
+}
+
+void progSkills()
+{
+	flipout();
+	wait1Msec(1000);
+	claw(0); // 4 stars
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1300, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 250) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	wait1Msec(200);
+	drive(300, -80, true);
+	wait1Msec(250);
+	drive(1000, 60, 0.1, 0, 0);
+	while (SensorValue[LeftEnc] < 900) wait1Msec(20);
+	claw(); // cube 1
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1100, 100, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 100) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	wait1Msec(200);
+	drive(300, -80, true);
+	wait1Msec(250);
+	drive(1000, 60, 0.1, 0, 0);
+	while (SensorValue[LeftEnc] < 900) wait1Msec(20);
+
+	wait1Msec(500);
+	claw(); // cube 2
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1300, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 250) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	drive(500, -80, true);
+	wait1Msec(500);
+	drive(650, 50, 0.1, 0, 0, true);
+	claw();
+	wait1Msec(500);
+	turn(-930, 127, 50, 0.10);  //930,50, 0.1
+	wait1Msec(500);
+	claw(); // middle cube open
+	wait1Msec(400);
+	drive(2300, 60, 0.1, 0, 0); // 2100
+	wait1Msec(1200); // 800
+	claw(); // middle cube close
+	holdHeight += 400;
+	startTask(hold);
+	while (SensorValue[LeftEnc] < 2050) wait1Msec(20);
+	turn(850, 127, 75, 0.15); //900, 60, 0.15
+	wait1Msec(400);
+	drive(-950, 60, 0.1, 0, 0);
+	wait1Msec(250);
+	startTask(dumping);
+	holdHeight -= 400;
+	while (dumpMode != 1) wait1Msec(20);
+	wait1Msec(200);
+	drive(300, -80, true);
+	wait1Msec(250);
+	drive(1100, 70, 0.1, 0, 0);
+	while (SensorValue[LeftEnc] < 1000) wait1Msec(20);
+	claw(); // end cube
+	wait1Msec(250);
+	startTask(hold);
+	turn(80, 127, 80, 0.15); //60
+	wait1Msec(250);
+	drive(-1100, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 100) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	drive(300, -80, true);
+	wait1Msec(250);
+	drive(300, 50, true);
+	turn(-80, 127, 80, 0.1);
+	drive(900, 50, 0.1, 0, 0, true);
+	claw();
+	drive(300, -80, true);
+	wait1Msec(250);
+	turn(900, 127, 90, 0.15);
+	wait1Msec(250);
+	drive(1200, -127, true);
+	wait1Msec(200); //500
+	drive(300, 80, true);
+	turn(100, 127, 50, 0.1);
+	wait1Msec(250);
+	claw();
+	drive(1500, 80, 0.15, 0, 0, true);
+	claw();
+	turn(-1100, 127, 127, 0.15); // -1300
+	wait1Msec(250);
+	startTask(hold);
+	drive(-300, 110, 0.1, 0, 0); //-200
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	drive(500, -80, true);
+	wait1Msec(250);
+	drive(1000, 90, 0.1, 0, 0); // 70
+	while (SensorValue[LeftEnc] < 900) wait1Msec(20);
+	claw(); // last stars
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1100, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 300) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	wait1Msec(250);
+	drive(500, -80, true);
+	wait1Msec(250);
+	drive(200, 127, true);
+	turn(-200, 127, 60, 0.15);
+	wait1Msec(250);
+	drive(1000, 90, 0.1, 0, 0); // 70
+	while (SensorValue[LeftEnc] < 900) wait1Msec(20);
+	claw(); // last stars
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1100, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 300) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	/*drive(750, 80, 0.1, 0, 0, true); // 70
+	turn(900, 127, 70, 0.15); //60
+	wait1Msec(250);
+	drive(3000, -80, true);
+	claw(0);
+	wait1Msec(250);
+	sonarDrive(40);
+	wait1Msec(500);
+	turn(450, 127, 60, 0.1); //50,0.1
+	wait1Msec(500);
+	drive(1800, -50, true);
+	lift(hangEnter, 50);
+	wait1Msec(500);
+	hanging();*/
+	/*wait1Msec(250);
+	drive(300, 60, 0.12, 0, 0, true);
+	wait1Msec(25);
+	turn(450, 127, 50, 0.15);
+	wait1Msec(250);
+	drive(2000, -70, true);*/
+	/*turn(-450, 127, 50, 0.15);
+	wait1Msec(250);
+	drive(1500, 55, 0.1, 0, 0, true);
+	claw();
+	wait1Msec(250);
+	turn(-1800, 127, 50, 0.15);*/
+}
+
+void auton()
+{
+	flipout();
+	claw(0); // 4 stars
+	wait1Msec(500);
+	startTask(hold);
+	drive(-1300, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 250) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	drive(500, -80, true);
+	wait1Msec(250);
+	drive(650, 50, 0.1, 0, 0, true);
+	claw();
+	wait1Msec(500);
+	turn(930, 127, 50, 0.10);
+	wait1Msec(500);
+	claw(); // middle cube open
+	wait1Msec(400);
+	drive(2300, 60, 0.1, 0, 0); // 2100
+	wait1Msec(1200); // 800
+	claw(); // middle cube close
+	startTask(hold);
+	wait1Msec(500);
+	drive(-1500, 80, 0.15, 0, 0);
+	turn(-900, 127, 80, 0.15);
+	wait1Msec(500);
+	drive(-500, 110, 0.1, 0, 0);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
 }
 
 void collectCenterAuto()
@@ -53,7 +237,7 @@ void collectCenterAuto()
 		if (time1[T1] % 200 == 0)
 			claw();
 	}
-	SensorValue[Claw1] = SensorValue[Claw2] = 0;
+	claw(0);
 	while (SensorValue[pot] > bottomHeight)
 	{
 		lift(-80);
@@ -66,22 +250,15 @@ void collectCenterAuto()
 	wait1Msec(500);
 	drive(1400, 60, 0.1, 0, 0);
 	while(SensorValue[RightEnc] < 1100) wait1Msec(20);
-	claw();
+	claw(1);
 	startTask(hold);
 	wait1Msec(500);
 	stopTask(pidL);
-	if(direction == 1)
-	{
-		turn(-1100, 127, 80);
-	}
-	else
-	{
-		turn(1100, 127, 80);
-	}
+	turn(direction == 1 ? -1100 : 1100, 127, 80);
 	wait1Msec(500);
 	drive(-1000, 127);
 	wait1Msec(200);
-	dumping();
+	startTask(dumping);
 	wait1Msec(1000);
 	drive(1200, 50, 0.1, 0, 0);
 	while (SensorValue[RightEnc] < 1150) wait1Msec(20);
@@ -89,7 +266,7 @@ void collectCenterAuto()
 	wait1Msec(300);
 	drive(-1300, 127);
 	startTask(hold);
-	dumping();
+	startTask(dumping);
 
 }
 
@@ -99,7 +276,7 @@ void knockStarsAuto()
 	startTask(hold);
 	wait1Msec(500);
 	drive(-1200, 127);
-	dumping();
+	startTask(dumping);
 
 }
 task autonomous()
@@ -120,22 +297,20 @@ task usercontrol()
 {
 	stopTask(hold);
 	dumpMode = 1;
-	startTask(DriveControl);
+
+	//progSkills();
+	auton();
+	/*startTask(DriveControl);
 	startTask(LiftControl);
-	startTask(IntakeControl);
-	//drive(1000, 40, 0.1, 0, 0); // works well
-	//turn(900, 127);  // works well
+	startTask(IntakeControl);*/
+
 	while (1)
 	{
 		if (vexRT[Btn6U])
 		{
 			while (vexRT[Btn6U]) wait1Msec(20);
 			if (dumpMode == 1) startTask(hold);
-			else
-			{
-				//stopTask(hold);
-				dumping();
-			}
+			else startTask(dumping);
 		}
 		if (vexRT[Btn8D])
 		{
@@ -147,11 +322,10 @@ task usercontrol()
 			while (vexRT[Btn8L]) wait1Msec(20);
 			SensorValue[HangLock] = abs(SensorValue[HangLock] - 1);
 		}
-		wait1Msec(20);
 		if (vexRT[Btn8R] && vexRT[Btn7R])
 		{
-			pre_auton();
-			collectCenterAuto();
+			flipout();
 		}
+		wait1Msec(20);
 	}
 }

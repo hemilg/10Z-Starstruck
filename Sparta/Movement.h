@@ -4,8 +4,10 @@ int dumpMode = 1;
 int bottomHeight = 980; // 850
 int holdHeight = 1100; // 950
 int clawHeight = 2500; // 2000
-int topHeight = 3300;
+int topHeight = 3400;
 int hangHeight = 1000;  // 920
+
+int hangEnter = 3440;
 
 const unsigned int linearSpeed[128] =
 {
@@ -27,15 +29,18 @@ const unsigned int linearSpeed[128] =
 const int SLEW_LENGTH = 10;
 
 int Slew[SLEW_LENGTH];
+task dumping();
+task dumpOverride();
 
 void potValues(int zero)
 {
-	int offset = zero - (bottomHeight - 10);
+	int offset = zero + 50 - (bottomHeight); // +100
 	bottomHeight += offset;
 	holdHeight += offset;
 	clawHeight += offset;
 	topHeight += offset;
 	hangHeight += offset;
+	hangEnter += offset;
 }
 
 void fillSlew(int val)
@@ -102,6 +107,11 @@ void claw ()
 	SensorValue[Claw2] = (abs(SensorValue[Claw2] - 1));
 }
 
+void claw (int val)
+{
+	SensorValue[Claw1] = SensorValue[Claw2] = val;
+}
+
 int cubicMap (int pwr)
 {
 	return pwr;
@@ -140,9 +150,10 @@ task LiftControl()
 			prev = SensorValue[pot];
 			dumpMode = 1;
 		}
-		else //lift(0);    // used to be 0
+		else
 		{
-			lift(-10);
+			if (SensorValue[pot] > holdHeight) lift(8);
+			else lift(SensorValue[pot] > (bottomHeight + 10) ? -8 : 0); // -10
 		}
 		wait1Msec(20);
 	}
@@ -165,7 +176,7 @@ task hold()
 {
 	dumpMode = 2;
 	stopTask(LiftControl);
-	while (!(vexRT[Btn5D] || vexRT[Btn5U] || vexRT[Btn8U]))
+	while (!(vexRT[Btn5D] || vexRT[Btn5U] || vexRT[Btn6U]))
 	{
 		while (SensorValue[pot] < holdHeight)
 		{
@@ -178,31 +189,49 @@ task hold()
 	startTask(LiftControl);
 }
 
-void dumping()
+task dumpOverride()
 {
-	stopTask(LiftControl);
+	while (1)
+	{
+		if (vexRT[Btn5U] || vexRT[Btn5D])
+		{
+			stopTask(dumping);
+			dumpMode = 1;
+			startTask(LiftControl);
+			stopTask(dumpOverride);
+		}
+		wait1Msec(20);
+	}
+}
+task dumping()
+{
 	stopTask(hold);
+	stopTask(LiftControl);
+	startTask(dumpOverride);
 	while (SensorValue[pot] < clawHeight)
 	{
-		lift(127); // 80, 60
+		lift(127);
 		wait1Msec(20);
 	}
-	claw();
+	claw(1);
 	while(SensorValue[pot] < topHeight) wait1Msec(20);
 	lift(0);
-	wait1Msec(600);
-	while (SensorValue[pot] > holdHeight)
+	wait1Msec(500);
+	while (SensorValue[pot] > (holdHeight + 200))
 	{
-		lift(-127);
+		lift(-80);
 		wait1Msec(20);
 	}
-	while (SensorValue[pot] > bottomHeight)
+	while (SensorValue[pot] > (bottomHeight + 50))
 	{
 		lift(-30);
 		wait1Msec(20);
 	}
+	lift(0);
+	stopTask(dumpOverride);
 	dumpMode = 1;
 	startTask(LiftControl);
+	stopTask(dumping);
 }
 
 void hanging()
@@ -222,4 +251,14 @@ void hanging()
 	SensorValue[HangLock] = abs(SensorValue[HangLock] - 1);
 	startTask(DriveControl);
 	startTask(LiftControl);
+}
+
+void lift (int target, int pwr)
+{
+	int dir = sgn(target - SensorValue[pot]);
+	while (abs(SensorValue[pot] - target) > 20)
+	{
+		lift(pwr * dir);
+	}
+	lift(0);
 }
