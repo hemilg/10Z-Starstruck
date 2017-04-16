@@ -77,6 +77,7 @@ void resetEncoders()
 {
 	SensorValue[LeftEnc] = 0;
 	SensorValue[RightEnc] = 0;
+	SensorValue[gyro] = 0;
 }
 
 void gyroCalibrate()
@@ -254,7 +255,7 @@ void lift (int target, int pwr)
 	lift(0);
 }
 
-task PotValues
+task PotValues()
 {
 	lclaw = 0;
 	lclawstart = SensorValue[leftclaw];

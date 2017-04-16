@@ -8,22 +8,28 @@ task pidL()
 	float p, i, d;
 	float prevError, error, integral;
 
-	float kp2;
-	int pwr;
+	float kp2, eC, gC;
+	int pwr, eDiff, gDiff;
 	taskOver = false;
+
+	eC = 0.0;
+	gC = 0;
 
 	while (abs(SensorValue[LeftEnc]) < abs(target))
 	{
 		error = target - SensorValue[LeftEnc];
 		integral += error;
-		p = (abs(error) > 400 ? (127 * sgn(error)) : (kp * error));
+		p = (abs(error) > 800 ? (127 * sgn(error)) : (kp * error));
 		i = ki * integral;
 		d = kd * (error - prevError);
 		pwr = p + i + d;
 		pwr = (pwr > 0) ? min(pwr, 127) : max(pwr, -127);
 		pwr = linSpeed(pwr);
-		leftDrive(abs(pwr) > minPwr ? pwr : sgn(pwr) * minPwr);
-		rightDrive(abs(pwr) > minPwr ? pwr : sgn(pwr) * minPwr);
+		eDiff = (SensorValue[RightEnc] - SensorValue[LeftEnc]) * eC;
+		gDiff = SensorValue[gyro] * gC;
+		leftDrive(abs(pwr + eDiff - gDiff) > minPwr ? (pwr + eDiff - gDiff) : sgn(pwr + eDiff) * minPwr + eDiff - gDiff);
+		rightDrive(abs(pwr - eDiff + gDiff) > minPwr ? (pwr - eDiff + gDiff) : sgn(pwr - eDiff) * minPwr - eDiff + gDiff);
+		wait1Msec(20);
 	}
 	leftDrive(0);
 	rightDrive(0);
@@ -158,8 +164,8 @@ void flipout()
 	stopTask(DriveControl);
 	stopTask(IntakeControl);
 	stopTask(clawSync);
-	drive(400, -90, true);
+	drive(-600, 50, 0.1, 0, 0, true);
 	motor[ClawL] = motor[ClawR] = -127;
-	wait1Msec(400);
+	wait1Msec(300);
 	motor[ClawL] = motor[ClawR] = 0;
 }

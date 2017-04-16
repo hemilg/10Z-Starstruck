@@ -32,16 +32,16 @@ void hangBlock()
 {
 	startTask(PotValues);
 	startTask(LiftControl);
-	/*flipout();
-	liftHolding = -30;
-	drive(400, 70, true);
+	flipout();
+	liftHolding = -80;
+	drive(400, 50, 0.1, 0, 0, true);
 	potValues(SensorValue[pot]);
-	liftHolding = -12;*/
-	startTask(hold);
+	liftHolding = -12;
 	startTask(clawSync);
 	clawTarget = clawClosed;
-	wait1Msec(800);
-	drive(-1100, 110, 0.1, 0, 0);
+	wait1Msec(1500);
+	startTask(hold);
+	drive(-1000, 110, 0.1, 0, 0);
 	while (abs(SensorValue[LeftEnc]) < 500) wait1Msec(20);
 	startTask(dumping);
 	while (dumpMode != 1) wait1Msec(20);
@@ -66,14 +66,14 @@ task autonomous()
 
 task usercontrol()
 {
-	hangBlock();
-	/*stopTask(hold);
+	//hangBlock();
+	stopTask(hold);
 	startTask(PotValues);
 	startTask(clawSync);
 	clawTarget = clawOpen;
 	startTask(DriveControl);
 	startTask(LiftControl);
-	startTask(IntakeControl);*/
+	startTask(IntakeControl);
 
 	while (1)
 	{
