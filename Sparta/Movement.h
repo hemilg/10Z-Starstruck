@@ -5,7 +5,7 @@ int bottomHeight = 980; // 850
 int holdHeight = 1100; // 950
 int clawHeight = 2500; // 2000
 int topHeight = 3400;
-int hangHeight = 1000;  // 920
+int hangHeight = 1000;  // 1300
 
 int hangEnter = 3440;
 
@@ -34,7 +34,7 @@ task dumpOverride();
 
 void potValues(int zero)
 {
-	int offset = zero + 50 - (bottomHeight); // +100
+	int offset = zero + 180 - (bottomHeight); // +100
 	bottomHeight += offset;
 	holdHeight += offset;
 	clawHeight += offset;
@@ -153,7 +153,7 @@ task LiftControl()
 		else
 		{
 			if (SensorValue[pot] > holdHeight) lift(8);
-			else lift(SensorValue[pot] > (bottomHeight + 10) ? -8 : 0); // -10
+			else lift(-20);/*lift(SensorValue[pot] > (bottomHeight + 10) ? -20 : 0); // -8*/
 		}
 		wait1Msec(20);
 	}
@@ -222,7 +222,7 @@ task dumping()
 		lift(-80);
 		wait1Msec(20);
 	}
-	while (SensorValue[pot] > (bottomHeight + 50))
+	while (SensorValue[pot] > (bottomHeight + 50))  // 70
 	{
 		lift(-30);
 		wait1Msec(20);

@@ -64,7 +64,7 @@ void progSkills()
 	claw(); // cube 1
 	wait1Msec(500);
 	startTask(hold);
-	drive(-1100, 100, 0.1, 0, 0);
+	drive(-1300, 100, 0.1, 0, 0);
 	while (abs(SensorValue[LeftEnc]) < 100) wait1Msec(20);
 	startTask(dumping);
 	while (dumpMode != 1) wait1Msec(20);
@@ -91,12 +91,12 @@ void progSkills()
 	wait1Msec(500);
 	claw(); // middle cube open
 	wait1Msec(400);
-	drive(2300, 60, 0.1, 0, 0); // 2100
+	drive(1800, 60, 0.1, 0, 0); // 2000
 	wait1Msec(1200); // 800
 	claw(); // middle cube close
 	holdHeight += 400;
 	startTask(hold);
-	while (SensorValue[LeftEnc] < 2050) wait1Msec(20);
+	while (SensorValue[LeftEnc] < 1730) wait1Msec(20);
 	turn(850, 127, 75, 0.15); //900, 60, 0.15
 	wait1Msec(400);
 	drive(-950, 60, 0.1, 0, 0);
@@ -118,11 +118,11 @@ void progSkills()
 	while (abs(SensorValue[LeftEnc]) < 100) wait1Msec(20);
 	startTask(dumping);
 	while (dumpMode != 1) wait1Msec(20);
-	drive(300, -80, true);
+	drive(700, -80, true);
 	wait1Msec(250);
 	drive(300, 50, true);
 	turn(-80, 127, 80, 0.1);
-	drive(900, 50, 0.1, 0, 0, true);
+	drive(800, 50, 0.1, 0, 0, true);  // 900
 	claw();
 	drive(300, -80, true);
 	wait1Msec(250);
@@ -157,7 +157,7 @@ void progSkills()
 	drive(500, -80, true);
 	wait1Msec(250);
 	drive(200, 127, true);
-	turn(-200, 127, 60, 0.15);
+	turn(100, 127, 60, 0.15);
 	wait1Msec(250);
 	drive(1000, 90, 0.1, 0, 0); // 70
 	while (SensorValue[LeftEnc] < 900) wait1Msec(20);
@@ -196,8 +196,44 @@ void progSkills()
 	turn(-1800, 127, 50, 0.15);*/
 }
 
-void auton()
+void autonCube(bool right)
 {
+	int dir = right ? 1 : -1;
+	flipoutAuton();
+	claw(0); // 4 stars
+	wait1Msec(250);
+	startTask(hold);
+	drive(-1300, 110, 0.1, 0, 0);
+	while (abs(SensorValue[LeftEnc]) < 250) wait1Msec(20);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+	drive(900, -80, true);
+	wait1Msec(250);
+	drive(500, 50, 0.1, 0, 0, true);
+	claw();
+	wait1Msec(500);
+	turn(750 * dir, 127, 70, 0.10);
+	wait1Msec(500);
+	claw(); // middle cube open
+	wait1Msec(400);
+	drive(1300, 90, 0.1, 0, 0); // 2100
+	wait1Msec(800); // 800
+	claw(); // middle cube close
+	wait1Msec(100);
+	startTask(hold);
+	wait1Msec(100);
+	drive(-1300, 90, 0.15, 0, 0, true);
+	wait1Msec(400);
+	turn(-800 * dir, 127, 110, 0.15);
+	wait1Msec(250);
+	drive(-600, 110, 0.1, 0, 0);
+	startTask(dumping);
+	while (dumpMode != 1) wait1Msec(20);
+}
+
+void autonStar(bool right)
+{
+	int dir = right ? 1 : -1;
 	flipout();
 	claw(0); // 4 stars
 	wait1Msec(500);
@@ -208,26 +244,20 @@ void auton()
 	while (dumpMode != 1) wait1Msec(20);
 	drive(500, -80, true);
 	wait1Msec(250);
-	drive(650, 50, 0.1, 0, 0, true);
+	drive(200, 127, true);
+	wait1Msec(250);
+	turn(-200 * dir, 127, 50, 0.10);
+	wait1Msec(500);
+	drive(900, 50, 0.1, 0, 0, true);
 	claw();
-	wait1Msec(500);
-	turn(930, 127, 50, 0.10);
-	wait1Msec(500);
-	claw(); // middle cube open
-	wait1Msec(400);
-	drive(2300, 60, 0.1, 0, 0); // 2100
-	wait1Msec(1200); // 800
-	claw(); // middle cube close
+	drive(200, -127, true);
+	wait1Msec(250);
+	turn(200 * dir, 127, 50, 0.10);
 	startTask(hold);
-	wait1Msec(500);
-	drive(-1500, 80, 0.15, 0, 0);
-	turn(-900, 127, 80, 0.15);
-	wait1Msec(500);
-	drive(-500, 110, 0.1, 0, 0);
+	wait1Msec(400);
+	drive(-1300, 110, 0.1, 0, 0);
 	startTask(dumping);
-	while (dumpMode != 1) wait1Msec(20);
 }
-
 void collectCenterAuto()
 {
 	clearTimer(T1);
@@ -281,7 +311,8 @@ void knockStarsAuto()
 }
 task autonomous()
 {
-	switch(autonVal){
+	autonCube(false);
+	/*switch(autonVal){
 		case 1:
 			collectCenterAuto();
 			break;
@@ -290,7 +321,7 @@ task autonomous()
 			break;
 		default:
 			break;
-	}
+	}*/
 }
 
 task usercontrol()
@@ -299,10 +330,9 @@ task usercontrol()
 	dumpMode = 1;
 
 	//progSkills();
-	auton();
-	/*startTask(DriveControl);
+	startTask(DriveControl);
 	startTask(LiftControl);
-	startTask(IntakeControl);*/
+	startTask(IntakeControl);
 
 	while (1)
 	{
@@ -325,6 +355,17 @@ task usercontrol()
 		if (vexRT[Btn8R] && vexRT[Btn7R])
 		{
 			flipout();
+		}
+		if (vexRT[Btn7L])
+		{
+			progSkills();
+		}
+		if (vexRT[Btn7U])
+		{
+			autonCube(true);
+			startTask(DriveControl);
+			startTask(IntakeControl);
+			startTask(LiftControl);
 		}
 		wait1Msec(20);
 	}

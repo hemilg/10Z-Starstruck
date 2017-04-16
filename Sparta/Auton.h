@@ -239,11 +239,29 @@ void flipout()
 {
 	stopTask(DriveControl);
 	stopTask(IntakeControl);
+	stopTask(LiftControl);
 	drive(800, -100, true);
 	drive(100, 70, true);
 	claw();
+	lift(80);
+	wait1Msec(300);
+	lift(-80);
+	wait1Msec(300);
+	lift(0);
 	wait1Msec(500);
 	drive(480, 60, true);
 	startTask(DriveControl);
 	startTask(IntakeControl);
+	startTask(LiftControl);
+}
+
+void flipoutAuton()
+{
+	stopTask(DriveControl);
+	stopTask(IntakeControl);
+	drive(800, -100, true);
+	drive(100, 70, true);
+	claw();
+	wait1Msec(500);
+	drive(580, 60, true);
 }
